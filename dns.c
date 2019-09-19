@@ -43,7 +43,11 @@ int main(int argc, char *argv[]) {
         0 ,  1                             // QUESTION: QCLASS
     };
 
-    struct sockaddr dest;
+    struct sockaddr_in dest;
+
+    dest.sin_family = AF_INET;
+    dest.sin_port = htons(53);
+    dest.sin_addr.s_addr = inet_addr("8.8.8.8");
 
     int sock_re;
 
@@ -52,8 +56,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if(sendto(sock_re, msg, sizeof(msg), 0, &dest, sizeof(dest)) < 0) {
+    if(sendto(sock_re, (void *)msg, sizeof(msg), 0, (struct sockaddr*)&dest, sizeof(dest)) < 0) {
         perror("sendto failed");
+        return 1;
     }
 
     return 0;
