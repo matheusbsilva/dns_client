@@ -3,3 +3,5 @@ all:
 run:
 	./bin/dns
 
+clean:
+	rm -rf ./bin/*
