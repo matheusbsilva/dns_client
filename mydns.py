@@ -1,5 +1,7 @@
 import bitstring
 import socket
+import sys
+import codecs
 
 
 def convert_to_hex(element):
@@ -48,6 +50,54 @@ def format_qname(hostname, query_format, query):
     query['qname{}'.format(idx)] = convert_to_hex(0)
 
 
+def verify_rcode(response_bytes):
+
+    rcode_offset = 28
+    rcode_end = rcode_offset + 4
+    response_code = str(response_bytes[rcode_offset:rcode_end].hex)
+
+    if response_code == "1":
+        print("Format error - The name server was unable \
+               to interpret the query.")
+        sys.exit(1)
+
+    elif response_code == "2":
+        print("Server failure - The name server was unable to \
+               process this query due to a problem with the name server.")
+        sys.exit(1)
+
+    elif response_code == "3":
+        print("Name Error - Meaningful only for \
+               responses from an authoritative name \
+               server, this code signifies that the \
+               domain name referenced in the query does \
+              not exist.")
+        sys.exit(1)
+
+    elif response_code == "4":
+        print("Not Implemented - The name server does \
+               not support the requested kind of query.")
+        sys.exit(1)
+
+    elif response_code == "5":
+        print("Refused - The name server refuses to \
+               perform the specified operation for \
+               policy reasons.")
+        sys.exit(1)
+
+    return True
+
+
+def parse_rdata(response_bytes):
+
+    ip1 = int(str(response_bytes[-32:-24]), 16)
+    ip2 = int(str(response_bytes[-24:-16]), 16)
+    ip3 = int(str(response_bytes[-16:-8]), 16)
+    ip4 = int(str(response_bytes[-8:]), 16)
+
+    return "%s.%s.%s.%s" % (ip1, ip2, ip3, ip4)
+
+
 def resolve(hostname):
     qtype_A = 1
     qclass_IN = "0x0001"
@@ -62,7 +112,7 @@ def resolve(hostname):
     ]
 
     query = {
-        "id": "0x1a2b",
+        "id": "0x1a3b",
         "flags": "0b0000000100000000",
         "qdcount": 1,
         "ancount": 0,
@@ -72,9 +122,6 @@ def resolve(hostname):
 
     format_qname(hostname, query_format, query)
     define_qtype_qclass(qtype_A, qclass_IN, query_format, query)
-
-    print(query_format)
-    print(query)
 
     data = bitstring.pack(",".join(query_format), **query)
 
@@ -93,18 +140,10 @@ def resolve(hostname):
 
     data = bitstring.BitArray(bytes=data)
 
-    # According to RFC 1025 the header size is 97 bits
-    # so goes from 0 to 96
-    # header_size = 96
-
-    rcode_offset = 28
-    rcode_end = rcode_offset + 4
-
-    response_code = str(data[rcode_offset:rcode_end].hex)
-
-    print(data)
-    print(response_code)
+    if verify_rcode(data):
+        ipv4 = parse_rdata(data)
+        print(ipv4)
 
 
 if __name__ == '__main__':
-    resolve("www.google.com")
+    resolve(sys.argv[1])
