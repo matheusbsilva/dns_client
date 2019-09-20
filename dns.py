@@ -33,19 +33,19 @@ def format_qname(hostname, query_format, query):
     idx = 0
 
     for i, h in enumerate(hostname):
-        # Add length to the query format and body
+        # Adiciona tamanho ao formato da query e o corpo
 
         query_format.append('hex=qname{}'.format(idx))
         query['qname{}'.format(idx)] = convert_to_hex(len(h))
         idx += 1
 
-        # Add hostname to the query format and body
+        # Adiciona o hostname ao formato da query e o corpo
 
         query_format.append('hex=qname{}'.format(idx))
         query['qname{}'.format(idx)] = convert_to_hex(h)
         idx += 1
 
-    # Add end bit
+    # Adiciona bit final
     query_format.append('hex=qname{}'.format(idx))
     query['qname{}'.format(idx)] = convert_to_hex(0)
 
@@ -57,32 +57,23 @@ def verify_rcode(response_bytes):
     response_code = str(response_bytes[rcode_offset:rcode_end].hex)
 
     if response_code == "1":
-        print("Format error - The name server was unable \
-               to interpret the query.")
+        print("Format error - The name server was unable to interpret the query.")
         sys.exit(1)
 
     elif response_code == "2":
-        print("Server failure - The name server was unable to \
-               process this query due to a problem with the name server.")
+        print("Server failure - The name server was unable to process this query due to a problem with the name server.")
         sys.exit(1)
 
     elif response_code == "3":
-        print("Name Error - Meaningful only for \
-               responses from an authoritative name \
-               server, this code signifies that the \
-               domain name referenced in the query does \
-              not exist.")
+        print("Name Error - Meaningful only for responses from an authoritative name server, this code signifies that the domain name referenced in the query does not exist.")
         sys.exit(1)
 
     elif response_code == "4":
-        print("Not Implemented - The name server does \
-               not support the requested kind of query.")
+        print("Not Implemented - The name server does not support the requested kind of query.")
         sys.exit(1)
 
     elif response_code == "5":
-        print("Refused - The name server refuses to \
-               perform the specified operation for \
-               policy reasons.")
+        print("Refused - The name server refuses to perform the specified operation for policy reasons.")
         sys.exit(1)
 
     return True
