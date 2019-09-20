@@ -1,7 +1,7 @@
-import bitstring
 import socket
 import sys
-import codecs
+
+import bitstring
 
 
 def convert_to_hex(element):
@@ -98,7 +98,7 @@ def parse_rdata(response_bytes):
     return "%s.%s.%s.%s" % (ip1, ip2, ip3, ip4)
 
 
-def resolve(hostname):
+def resolve(hostname, dns_ip):
     qtype_A = 1
     qclass_IN = "0x0001"
 
@@ -125,7 +125,6 @@ def resolve(hostname):
 
     data = bitstring.pack(",".join(query_format), **query)
 
-    dns_ip = "8.8.8.8"
     dns_port = 53
 
     buffer_size = 1024
@@ -142,8 +141,8 @@ def resolve(hostname):
 
     if verify_rcode(data):
         ipv4 = parse_rdata(data)
-        print(ipv4)
+        print(hostname, "<>", ipv4)
 
 
 if __name__ == '__main__':
-    resolve(sys.argv[1])
+    resolve(sys.argv[1], sys.argv[2])
