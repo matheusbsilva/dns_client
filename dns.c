@@ -57,9 +57,19 @@ int main(int argc, char *argv[]) {
     }
 
     if(sendto(sock_re, (void *)msg, sizeof(msg), 0, (struct sockaddr*)&dest, sizeof(dest)) < 0) {
-        perror("sendto failed");
+        perror("sendto error");
         return 1;
     }
+
+    char *buf = (char *)malloc(sizeof(char)*65536);
+
+    socklen_t len = sizeof dest;
+    if(recvfrom(sock_re, buf, sizeof(buf), 0, (struct sockaddr*)&dest, &len) < 0) {
+        perror("recvfrom error");
+        return 1;
+    }
+
+    printf("%s\n", buf);
 
     return 0;
 }
