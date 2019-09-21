@@ -136,4 +136,9 @@ def resolve(hostname, dns_ip):
 
 
 if __name__ == '__main__':
-    resolve(sys.argv[1], sys.argv[2])
+    try:
+        resolve(sys.argv[1], sys.argv[2])
+        sys.exit(0)
+    except IndexError:
+        print("Argumentos inválidos!!!")
+        sys.exit(1)

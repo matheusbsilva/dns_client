@@ -5,6 +5,8 @@
 pip install -r requirements.txt
 ```
 
+Foi utilizado como depedência externa a biblioteca [bitstring](https://pypi.org/project/bitstring/), para auxiliar no parse das informações da requisição.
+
 ## Execução
 
 Para utilizar a aplicação execute na raiz do projeto:
